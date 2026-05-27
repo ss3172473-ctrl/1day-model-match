@@ -31,14 +31,28 @@ export default function ApplyPage() {
       </div>
 
       <div className="flex-1 px-5 py-2 pb-24">
-        <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-6">
-          <p className="text-sm text-[var(--color-toss-blue)] font-medium leading-relaxed">
-            현재 상태를 확인하기 위해 실시간 카메라 촬영이 필수입니다. 
-            보정 어플 없이 기본 카메라로 촬영해 주세요.
-          </p>
-        </div>
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-[var(--color-toss-text)]">지원할 프로필 정보</span>
+            <div className="bg-white p-4 rounded-xl border border-gray-200 flex items-center gap-4">
+              <div className="w-14 h-14 bg-gray-200 rounded-full overflow-hidden flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="font-bold text-[var(--color-toss-text)] text-lg">김모델</h3>
+                <p className="text-sm text-[var(--color-toss-text-sec)] mt-0.5">24세 · 168cm · 50kg</p>
+              </div>
+              <button type="button" className="text-sm font-bold text-[var(--color-toss-blue)] px-3 py-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                변경
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+            <p className="text-sm text-[var(--color-toss-blue)] font-medium leading-relaxed">
+              현재 상태를 확인하기 위해 실시간 카메라 촬영이 필수입니다. 
+              보정 어플 없이 기본 카메라로 촬영해 주세요.
+            </p>
+          </div>
           <LiveCameraInput 
             label="실시간 인증 사진 (필수)"
             onImageCaptured={(file) => setPhoto(file)} 
