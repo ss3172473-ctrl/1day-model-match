@@ -29,7 +29,7 @@ export default function MdModelsPage() {
                   {model.height}cm · {model.weight}kg
                 </div>
               </div>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="secondary">
                 수정
               </Button>
             </div>
