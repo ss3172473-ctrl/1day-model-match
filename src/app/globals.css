@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-toss-blue: #3182f6;
+  --color-toss-bg: #f2f4f6;
+  --color-toss-card: #ffffff;
+  --color-toss-text: #191f28;
+  --color-toss-text-sec: #8b95a1;
+  --color-toss-border: #e5e8eb;
+  --color-toss-danger: #f04452;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--color-toss-bg);
+    --foreground: var(--color-toss-text);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Mobile Container Viewport Wrapper */
+.mobile-container {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--color-toss-card);
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  position: relative;
 }
