@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "1Day Model Match",
+  title: "Saozi",
   description: "1일 파티/행사 모델 매칭 플랫폼",
 };
 

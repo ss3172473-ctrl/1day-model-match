@@ -24,7 +24,7 @@ export default function LoginPage() {
     <div className="flex flex-col min-h-screen px-5 py-10 bg-[var(--color-toss-bg)]">
       <div className="flex-1 flex flex-col justify-center gap-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-[var(--color-toss-text)] mb-2">1Day Model</h1>
+          <h1 className="text-3xl font-bold text-[var(--color-toss-text)] mb-2">saozi</h1>
           <p className="text-[var(--color-toss-text-sec)]">파티/행사 당일 알바 매칭</p>
         </div>
 
