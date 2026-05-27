@@ -1,73 +1,95 @@
--- 1. Enum types creation
-CREATE TYPE user_role AS ENUM ('ORGANIZER', 'MODEL', 'MD');
-CREATE TYPE job_status AS ENUM ('OPEN', 'CLOSED', 'CANCELLED');
-CREATE TYPE application_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+-- Saozi Database Schema
 
--- 2. Users Table
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 1. Users Table (Extends Supabase Auth Users)
 CREATE TABLE public.users (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  role user_role NOT NULL,
-  name TEXT NOT NULL,
-  phone TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  email TEXT UNIQUE NOT NULL,
+  full_name TEXT,
+  role TEXT NOT NULL CHECK (role IN ('organizer', 'model', 'md')),
+  avatar_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 3. Model Profiles Table
-CREATE TABLE public.model_profiles (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  owner_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-  name TEXT NOT NULL,
-  age INTEGER NOT NULL,
-  height INTEGER NOT NULL,
-  weight INTEGER NOT NULL,
-  photos TEXT[] NOT NULL DEFAULT '{}',
-  bio TEXT,
-  instagram_id TEXT,
-  experience TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- RLS: Users can read their own profile. Anyone can read basic public info.
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public profiles are viewable by everyone." ON public.users FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile." ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update own profile." ON public.users FOR UPDATE USING (auth.uid() = id);
 
--- 4. Job Posts Table
-CREATE TABLE public.job_posts (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  organizer_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+-- 2. Jobs Table (Organizer creates)
+CREATE TABLE public.jobs (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organizer_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   event_datetime TIMESTAMPTZ NOT NULL,
   location_detail TEXT NOT NULL,
   pay_amount TEXT NOT NULL,
-  required_headcount INTEGER NOT NULL,
-  additional_requirements TEXT,
-  status job_status DEFAULT 'OPEN',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  required_headcount INTEGER NOT NULL DEFAULT 1,
+  requirements TEXT,
+  status TEXT DEFAULT 'OPEN' CHECK (status IN ('OPEN', 'CLOSED')),
+  created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 5. Applications Table
+ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Jobs are viewable by everyone." ON public.jobs FOR SELECT USING (true);
+CREATE POLICY "Organizers can insert jobs" ON public.jobs FOR INSERT WITH CHECK (
+  auth.uid() = organizer_id AND 
+  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'organizer')
+);
+CREATE POLICY "Organizers can update own jobs" ON public.jobs FOR UPDATE USING (auth.uid() = organizer_id);
+
+-- 3. Applications Table (Models / MDs applying)
 CREATE TABLE public.applications (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  job_post_id UUID REFERENCES public.job_posts(id) ON DELETE CASCADE NOT NULL,
-  applicant_user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-  model_profile_id UUID REFERENCES public.model_profiles(id) ON DELETE CASCADE NOT NULL,
-  live_photo_url TEXT NOT NULL,
-  status application_status DEFAULT 'PENDING',
-  applied_at TIMESTAMPTZ DEFAULT NOW(),
-  -- Prevent applying multiple times to the same job post with the same model profile
-  UNIQUE(job_post_id, model_profile_id)
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  job_id UUID REFERENCES public.jobs(id) ON DELETE CASCADE,
+  model_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  applied_by_md_id UUID REFERENCES public.users(id) ON DELETE SET NULL, -- Null if model applied directly
+  status TEXT DEFAULT 'PENDING_VERIFICATION' CHECK (status IN ('PENDING_VERIFICATION', 'VERIFIED', 'ACCEPTED', 'REJECTED')),
+  verification_photo_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(job_id, model_id) -- One application per model per job
 );
 
--- Row Level Security (RLS) setup (Basic template, needs refining for production)
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.model_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.job_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
+-- Organizers can see applications for their jobs
+CREATE POLICY "Organizers can view applications for their jobs" ON public.applications FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.jobs WHERE id = public.applications.job_id AND organizer_id = auth.uid())
+);
+-- Models can see their own applications
+CREATE POLICY "Models can view their own applications" ON public.applications FOR SELECT USING (auth.uid() = model_id);
+-- MDs can see applications they made
+CREATE POLICY "MDs can view applications they made" ON public.applications FOR SELECT USING (auth.uid() = applied_by_md_id);
+-- Models can insert directly
+CREATE POLICY "Models can insert applications" ON public.applications FOR INSERT WITH CHECK (
+  auth.uid() = model_id AND applied_by_md_id IS NULL
+);
+-- MDs can insert for their models
+CREATE POLICY "MDs can insert applications for models" ON public.applications FOR INSERT WITH CHECK (
+  auth.uid() = applied_by_md_id
+);
+-- Models can update (to upload verification photo)
+CREATE POLICY "Models can update their applications" ON public.applications FOR UPDATE USING (auth.uid() = model_id);
+-- Organizers can update (to accept/reject)
+CREATE POLICY "Organizers can update applications for their jobs" ON public.applications FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM public.jobs WHERE id = public.applications.job_id AND organizer_id = auth.uid())
+);
 
--- Allow all for now (Testing purposes MVP)
-CREATE POLICY "Allow all actions for authenticated users" ON public.users FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all actions for authenticated model_profiles" ON public.model_profiles FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all actions for authenticated job_posts" ON public.job_posts FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all actions for authenticated applications" ON public.applications FOR ALL TO authenticated USING (true);
+-- 4. Agency Models (MD's roster)
+CREATE TABLE public.agency_models (
+  md_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  model_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (md_id, model_id)
+);
 
--- Allow read for anon
-CREATE POLICY "Allow read for anon" ON public.job_posts FOR SELECT TO anon USING (true);
+ALTER TABLE public.agency_models ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "MDs can view their roster" ON public.agency_models FOR SELECT USING (auth.uid() = md_id);
+CREATE POLICY "Models can view their agencies" ON public.agency_models FOR SELECT USING (auth.uid() = model_id);
+CREATE POLICY "MDs can manage their roster" ON public.agency_models FOR ALL USING (auth.uid() = md_id);
+
+-- Storage bucket for verification photos (Manual setup required in Supabase Dashboard)
+-- insert into storage.buckets (id, name) values ('verifications', 'verifications');
+-- create policy "Models can upload verification photos" on storage.objects for insert with check (bucket_id = 'verifications' and auth.uid() = owner);
