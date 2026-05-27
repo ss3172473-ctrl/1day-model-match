@@ -8,9 +8,11 @@ export default function LandingPage() {
   const handleRoleSelect = (role: 'organizer' | 'model' | 'md') => {
     // In a real app, we would save this to state/context and proceed to login/signup
     if (role === 'organizer') {
-      router.push('/jobs');
+      router.push('/organizer/dashboard');
+    } else if (role === 'md') {
+      router.push('/md/models');
     } else {
-      router.push('/jobs');
+      router.push('/model/jobs');
     }
   };
 

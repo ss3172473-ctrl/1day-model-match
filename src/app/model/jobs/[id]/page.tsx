@@ -60,20 +60,11 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
 
       <div className="fixed bottom-6 w-full max-w-[480px] left-1/2 -translate-x-1/2 px-5 pb-[env(safe-area-inset-bottom)] pointer-events-none flex gap-3">
         <div className="pointer-events-auto flex-1 flex gap-3">
-          {isOrganizer ? (
-            <Link href={`/jobs/${id}/applicants`} className="w-full">
-              <Button size="lg" fullWidth className="shadow-lg shadow-blue-500/30 flex justify-center gap-2">
-                지원자 목록 보기
-                <ChevronRight size={20} />
-              </Button>
-            </Link>
-          ) : (
-            <Link href={`/jobs/${id}/apply`} className="w-full">
-              <Button size="lg" fullWidth className="shadow-lg shadow-blue-500/30">
-                지원하기
-              </Button>
-            </Link>
-          )}
+          <Link href={`/model/jobs/${id}/apply`} className="w-full">
+            <Button size="lg" fullWidth className="shadow-lg shadow-blue-500/30">
+              지원하기
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
