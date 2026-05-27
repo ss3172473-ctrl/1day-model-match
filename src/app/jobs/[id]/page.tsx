@@ -26,44 +26,29 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
 
       <div className="flex-1 px-5 py-2 pb-32 flex flex-col gap-6">
         <div>
-          <span className="px-3 py-1.5 bg-blue-100 text-blue-600 text-sm font-bold rounded-lg whitespace-nowrap mb-4 inline-block">
+          <span className="px-3 py-1.5 bg-blue-50 text-[var(--color-toss-blue)] text-sm font-bold rounded-lg mb-4 inline-block">
             모집중
           </span>
-          <h1 className="text-2xl font-bold text-[var(--color-toss-text)] leading-tight mb-2">
-            강남 프라이빗 라운지 VIP 파티 모델
+          <h1 className="text-4xl font-bold text-[var(--color-toss-text)] tracking-tight mb-2">
+            300,000원
           </h1>
-          <p className="text-2xl font-bold text-[var(--color-toss-blue)]">300,000원</p>
+          <p className="text-lg font-medium text-[var(--color-toss-text-sec)]">강남 프라이빗 라운지 VIP 파티 모델</p>
         </div>
 
-        <Card className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[var(--color-toss-text-sec)]">
-              <Calendar size={20} />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--color-toss-text-sec)]">일시</p>
-              <p className="font-semibold text-[var(--color-toss-text)]">2026.06.01 (월) 오후 8:00</p>
-            </div>
+        <div className="bg-white rounded-[24px] overflow-hidden divide-y divide-gray-100 border border-gray-100/50 shadow-[0_2px_12px_rgba(0,0,0,0.04)] mt-2">
+          <div className="flex items-center justify-between p-6">
+            <span className="text-[15px] text-[var(--color-toss-text-sec)] flex items-center gap-2"><Calendar size={18}/> 일시</span>
+            <span className="text-[15px] font-semibold text-[var(--color-toss-text)]">2026.06.01 (월) 오후 8:00</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[var(--color-toss-text-sec)]">
-              <MapPin size={20} />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--color-toss-text-sec)]">장소</p>
-              <p className="font-semibold text-[var(--color-toss-text)]">서울 강남구 역삼동 123-45</p>
-            </div>
+          <div className="flex items-center justify-between p-6">
+            <span className="text-[15px] text-[var(--color-toss-text-sec)] flex items-center gap-2"><MapPin size={18}/> 장소</span>
+            <span className="text-[15px] font-semibold text-[var(--color-toss-text)]">서울 강남구 역삼동</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[var(--color-toss-text-sec)]">
-              <Users size={20} />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--color-toss-text-sec)]">모집 인원</p>
-              <p className="font-semibold text-[var(--color-toss-text)]">3명</p>
-            </div>
+          <div className="flex items-center justify-between p-6">
+            <span className="text-[15px] text-[var(--color-toss-text-sec)] flex items-center gap-2"><Users size={18}/> 모집 인원</span>
+            <span className="text-[15px] font-semibold text-[var(--color-toss-text)]">3명</span>
           </div>
-        </Card>
+        </div>
 
         <div className="flex flex-col gap-3 mt-4">
           <h2 className="text-lg font-bold text-[var(--color-toss-text)]">추가 요구 사항</h2>

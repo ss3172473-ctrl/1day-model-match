@@ -37,32 +37,32 @@ export default function JobsPage() {
       <div className="flex flex-col gap-4 flex-1">
         {MOCK_JOBS.map((job) => (
           <Link href={`/jobs/${job.id}`} key={job.id}>
-            <Card className="hover:bg-gray-50 transition-colors cursor-pointer">
-              <div className="flex flex-col gap-3">
-                <div className="flex justify-between items-start">
-                  <h2 className="text-lg font-bold text-[var(--color-toss-text)] line-clamp-2 pr-4">{job.title}</h2>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs font-bold rounded-lg whitespace-nowrap">
+            <Card className="hover:scale-[0.98] transition-transform cursor-pointer border border-transparent hover:border-gray-200">
+              <div className="flex flex-col">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="px-2.5 py-1 bg-blue-50 text-[var(--color-toss-blue)] text-xs font-bold rounded-md">
                     모집중
                   </span>
+                  <span className="text-xs text-gray-400 font-medium">오늘 등록됨</span>
                 </div>
                 
-                <div className="flex flex-col gap-1 text-[var(--color-toss-text-sec)] text-sm">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} />
-                    <span>{new Date(job.event_datetime).toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} />
-                    <span className="line-clamp-1">{job.location_detail}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users size={16} />
-                    <span>{job.required_headcount}명 모집</span>
-                  </div>
-                </div>
+                <h2 className="text-2xl font-bold text-[var(--color-toss-text)] tracking-tight mb-1">
+                  {job.pay_amount}
+                </h2>
+                <p className="text-[15px] font-medium text-[var(--color-toss-text)] mb-5 line-clamp-1">
+                  {job.title}
+                </p>
 
-                <div className="mt-2 pt-3 border-t border-[var(--color-toss-border)]">
-                  <span className="text-lg font-bold text-[var(--color-toss-text)]">{job.pay_amount}</span>
+                <div className="flex items-center gap-2.5 text-[13px] font-medium text-[var(--color-toss-text-sec)] bg-gray-50 px-3 py-2 rounded-xl w-fit">
+                  <div className="flex items-center gap-1">
+                    <Calendar size={14} className="text-gray-400" />
+                    <span>{new Date(job.event_datetime).toLocaleString('ko-KR', { month: 'short', day: 'numeric' })}</span>
+                  </div>
+                  <div className="w-1 h-1 bg-gray-300 rounded-full" />
+                  <div className="flex items-center gap-1">
+                    <MapPin size={14} className="text-gray-400" />
+                    <span className="line-clamp-1">{job.location_detail.split(' ')[1] || '위치'}</span>
+                  </div>
                 </div>
               </div>
             </Card>
